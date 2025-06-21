@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Run - Charity Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: white;
+            font-family: 'Press Start 2P', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #gameCanvas {
+            border: 3px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            display: block;
+            margin: 0 auto;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #333;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        #overlay h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #0066cc;
+        }
+
+        #overlay p {
+            font-size: 12px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        #overlay button {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            padding: 15px 30px;
+            background-color: #ffd700;
+            color: #333;
+            border: 3px solid #333;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.1s;
+            image-rendering: pixelated;
+            outline: none;
+        }
+
+        #overlay button:hover {
+            background-color: #ffed4a;
+            box-shadow: 0 0 0 2px #333;
+        }
+
+        #overlay button:active {
+            background-color: #e6c200;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .game-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        #progressContainer {
+            width: 1000px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #progressBar {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            border: 3px solid #333;
+            border-radius: 0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #progressFill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffed4a);
+            width: 0%;
+            transition: width 0.5s ease-out;
+            position: relative;
+        }
+
+        #progressFill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        #milestoneText {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            color: #0066cc;
+            margin-top: 8px;
+            height: 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #milestonePrefix {
+            font-size: 10px;
+            color: #333;
+        }
+
+        #milestoneNoun {
+            font-size: 14px;
+            font-weight: bold;
+            color: #0066cc;
+            height: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .milestone-animate {
+            animation: slotMachine 1.5s ease-out;
+        }
+
+        @keyframes slotMachine {
+            0% { transform: translateY(0); }
+            25% { transform: translateY(-20px); opacity: 0.5; }
+            50% { transform: translateY(-40px); opacity: 0; }
+            75% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        #sparkleEffect {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 40px;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkleAnim 1s ease-out forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% {
+                opacity: 1;
+                transform: scale(0) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1) rotate(180deg);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div id="progressContainer">
+            <div id="progressBar">
+                <div id="progressFill"></div>
+            </div>
+            <div id="milestoneText">
+                <span id="milestonePrefix">You've collected enough water for</span>
+                <div id="milestoneNoun">a child</div>
+            </div>
+            <div id="sparkleEffect" class="hidden"></div>
+        </div>
+        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+        <div id="overlay">
+            <h1>Water Run</h1>
+            <p>Help provide clean water for all!</p>
+            <p>Move your jerrycan to collect water drops<br>
+            and avoid the logs floating downstream.</p>
+            <p>Click to start!</p>
+            <button id="startBtn" onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
