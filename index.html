@@ -210,6 +210,30 @@
                 transform: scale(0.5) rotate(360deg);
             }
         }
+
+        #charityInfo {
+            margin-top: 20px;
+            text-align: center;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: #666;
+            max-width: 1000px;
+        }
+
+        #charityInfo a {
+            color: #0066cc;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        #charityInfo a:hover {
+            color: #004499;
+            text-decoration: underline;
+        }
+
+        #charityInfo a:visited {
+            color: #0066cc;
+        }
     </style>
 </head>
 <body>
@@ -233,6 +257,10 @@
             <p>Click to start!</p>
             <button id="startBtn" onclick="startGame()">Start Game</button>
         </div>
+    </div>
+
+    <div id="charityInfo">
+        <p>Learn more about providing clean water for everyone at <a href="https://www.charitywater.org" target="_blank" rel="noopener noreferrer">charity: water</a></p>
     </div>
 
     <script src="game.js"></script>
